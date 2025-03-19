@@ -1,0 +1,4 @@
+setuptools>=58.0.0
+wheel
+numpy>=1.23.0 --only-binary :all:
+scikit-learn>=1.3.0

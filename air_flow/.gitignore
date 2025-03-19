@@ -1,0 +1,42 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+.Python
+
+# Ignore virtual environments
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+py_env/
+pyvenv.cfg
+
+# Airflow
+airflow.cfg
+unittests.cfg
+logs/
+plugins/
+airflow.db
+airflow-webserver.pid
+
+# Allow tracking everything in the dags folder
+!dags/
+!dags/*.py  # Track Python files in the dags folder
+!dags/**  # Track all files in the dags folder
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# VS Code
+.vscode/
+.history/
+
+# macOS
+.DS_Store
+
+# Docker
+*.log
+docker-compose.override.yml

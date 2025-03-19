@@ -1,0 +1,94 @@
+#TODO Move keys etc to .env files
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    networks:
+      - airflow-network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  airflow-webserver:
+    image: apache/airflow:2.5.0
+    environment:
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW_UID=50000
+      - AIRFLOW__CORE__DAG_DISCOVERY_INTERVAL=10
+      - AWS_ACCESS_KEY_ID=
+      - AWS_SECRET_ACCESS_KEY=
+      - S3_ENDPOINT_URL=http://host.docker.internal:9000
+      - AIRFLOW__WEBSERVER__SECRET_KEY=
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    networks:
+      - airflow-network
+    volumes:
+      - ./dags:/opt/airflow/dagss  # Update with your correct path
+    command: webserver
+
+  airflow-scheduler:
+    image: apache/airflow:2.5.0
+    environment:
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW_UID=50000
+      - AIRFLOW__WEBSERVER__SECRET_KEY=
+    depends_on:
+      - postgres
+    networks:
+      - airflow-network
+    volumes:
+      - ./dags:/opt/airflow/dags  # Update with your correct path
+    command: scheduler
+
+  airflow-init:
+    image: apache/airflow:2.5.0
+    environment:
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW_UID=50000
+      - AWS_ACCESS_KEY_ID=
+      - AWS_SECRET_ACCESS_KEY=
+      - S3_ENDPOINT_URL=http://host.docker.internal:9000
+      - AIRFLOW__WEBSERVER__SECRET_KEY=
+    depends_on:
+      - postgres
+    networks:
+      - airflow-network
+    command: ["airflow", "db", "init"]
+
+  airflow-worker:
+    image: apache/airflow:2.5.0
+    restart: always
+    depends_on:
+      - postgres
+      - airflow-webserver
+      - airflow-scheduler
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=CeleryLocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AWS_ACCESS_KEY_ID=
+      - AWS_SECRET_ACCESS_KEY=
+      - S3_ENDPOINT_URL=http://host.docker.internal:9000
+      - AIRFLOW__WEBSERVER__SECRET_KEY=
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+    command: celery worker
+    networks:
+      - airflow-network
+
+volumes:
+  postgres-data:
+networks:
+  airflow-network:
+    driver: bridge
