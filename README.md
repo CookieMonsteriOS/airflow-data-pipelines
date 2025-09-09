@@ -9,6 +9,9 @@
 A production-ready **workflow orchestration pipeline** built with **Apache Airflow**, designed for scalable, reliable, and automated task scheduling.  
 This project leverages **PostgreSQL** as the metadata store, **S3** for cloud-based storage, and a **Docker Compose** setup for rapid deployment.
 
+## Setup Instructions
+For detailed setup and configuration steps, please refer to the README file in the air_flow folder.
+
 ---
 
 ## 🚀 Features
@@ -48,5 +51,4 @@ airflow-project/
 ├── requirements.txt      # Python dependencies
 └── README.md             # Project documentation
 
-## Setup Instructions
-For detailed setup and configuration steps, please refer to the README file in the air_flow folder.
+
